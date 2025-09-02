@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "laziest browser",
+  "version": "1.0.0",
+  "description": ",➡️gpt .➡️bing /➡️duckduckgo ;➡️wiki",
+  "permissions": [
+    "webNavigation",
+    "tabs",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "*://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
