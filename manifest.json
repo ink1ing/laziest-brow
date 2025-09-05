@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "laziest browser",
-  "version": "1.0.0",
-  "description": ",➡️gpt .➡️bing /➡️duckduckgo ;➡️wiki",
+  "version": "1.1.0",
+  "description": "Prefixes: ,→ChatGPT .→FuClaude /→Bing ;→GitHub '→Wiki ‘→Wiki",
   "permissions": [
     "webNavigation",
     "tabs",

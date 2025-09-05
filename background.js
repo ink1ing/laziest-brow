@@ -2,13 +2,13 @@
 // 约定：
 // - 以 `,` 或 `，` 开头：跳转 ChatGPT（去掉前缀）
 // - 以 `今天什么新闻` 开头：跳转 ChatGPT（同原有规则）
-// - 以 `。`（中文句号）开头：跳转 Bing（去掉前缀）
-// - 以 `/` 开头：跳转 DuckDuckGo（去掉前缀）
+// - 以 `。`（中文句号）或 `.` 开头：跳转 FuClaude Demo（去掉前缀）
+// - 以 `/` 开头：跳转 Bing（去掉前缀）
 function extractRedirect(raw) {
   if (!raw) return null;
   const query = raw.trim();
 
-  // ChatGPT：英文/中文逗号前缀
+  // ChatGPT：英文/中文逗号前缀（不变）
   if (query.startsWith(',') || query.startsWith('，')) {
     const rest = query.slice(1).trim();
     return rest ? { to: 'chatgpt', term: rest } : null;
@@ -30,20 +30,26 @@ function extractRedirect(raw) {
     return { to: 'chatgpt', term: rest || prefix };
   }
 
-  // Bing：句号前缀（全角或半角）
+  // FuClaude Demo：句号前缀（全角或半角）
   if (query.startsWith('。') || query.startsWith('.')) {
+    const rest = query.slice(1).trim();
+    return rest ? { to: 'fuclaude', term: rest } : null;
+  }
+
+  // Bing：斜杠前缀
+  if (query.startsWith('/')) {
     const rest = query.slice(1).trim();
     return rest ? { to: 'bing', term: rest } : null;
   }
 
-  // DuckDuckGo：斜杠前缀
-  if (query.startsWith('/')) {
+  // GitHub 搜索：分号前缀（全角或半角）
+  if (query.startsWith('；') || query.startsWith(';')) {
     const rest = query.slice(1).trim();
-    return rest ? { to: 'ddg', term: rest } : null;
+    return rest ? { to: 'github', term: rest } : null;
   }
 
-  // 维基百科（中文）：分号前缀（全角或半角）
-  if (query.startsWith('；') || query.startsWith(';')) {
+  // 维基百科（中文）：单引号前缀（左单引号‘ 或 ASCII '）
+  if (query.startsWith('‘') || query.startsWith("'")) {
     const rest = query.slice(1).trim();
     return rest ? { to: 'wiki', term: rest } : null;
   }
@@ -69,8 +75,12 @@ chrome.webNavigation.onBeforeNavigate.addListener((details) => {
         targetUrl = `https://chatgpt.com/?q=${encodeURIComponent(info.term)}&hints=search`;
       } else if (info.to === 'bing') {
         targetUrl = `https://www.bing.com/search?q=${encodeURIComponent(info.term)}`;
-      } else if (info.to === 'ddg') {
-        targetUrl = `https://duckduckgo.com/?q=${encodeURIComponent(info.term)}`;
+      } else if (info.to === 'fuclaude') {
+        targetUrl = `https://demo.fuclaude.com/new?q=${encodeURIComponent(info.term)}`;
+      } else if (info.to === 'github') {
+        targetUrl = `https://github.com/search?q=${encodeURIComponent(info.term)}`;
+      } else if (info.to === 'wiki') {
+        targetUrl = `https://zh.wikipedia.org/w/index.php?search=${encodeURIComponent(info.term)}`;
       }
 
       if (targetUrl) {
@@ -99,8 +109,10 @@ chrome.webNavigation.onCommitted.addListener((details) => {
           targetUrl = `https://chatgpt.com/?q=${encodeURIComponent(info.term)}&hints=search`;
         } else if (info.to === 'bing') {
           targetUrl = `https://www.bing.com/search?q=${encodeURIComponent(info.term)}`;
-        } else if (info.to === 'ddg') {
-          targetUrl = `https://duckduckgo.com/?q=${encodeURIComponent(info.term)}`;
+        } else if (info.to === 'fuclaude') {
+          targetUrl = `https://demo.fuclaude.com/new?q=${encodeURIComponent(info.term)}`;
+        } else if (info.to === 'github') {
+          targetUrl = `https://github.com/search?q=${encodeURIComponent(info.term)}`;
         } else if (info.to === 'wiki') {
           targetUrl = `https://zh.wikipedia.org/w/index.php?search=${encodeURIComponent(info.term)}`;
         }
@@ -115,9 +127,9 @@ chrome.webNavigation.onCommitted.addListener((details) => {
   }
 });
 
-// 处理地址栏直接输入以“/关键词”导致的 file:/// 跳转
+  // 处理地址栏直接输入以“/关键词”导致的 file:/// 跳转
 // 某些情况下，Chrome 会将以“/”开头的输入当作本地文件路径，出现 ERR_FILE_NOT_FOUND。
-// 这里拦截 tab URL 变化，若是类似 file:///关键词 的无扩展名、单段路径，则重定向到 DuckDuckGo。
+// 这里拦截 tab URL 变化，若是类似 file:///关键词 的无扩展名、单段路径，则重定向到 Bing。
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (!changeInfo.url) return;
   try {
@@ -128,8 +140,8 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       if (rawPath.startsWith('/') && rawPath.length > 1 && !rawPath.slice(1).includes('/') && !rawPath.slice(1).includes('.')) {
         const term = rawPath.slice(1).trim();
         if (term) {
-          const ddg = `https://duckduckgo.com/?q=${encodeURIComponent(term)}`;
-          chrome.tabs.update(tabId, { url: ddg });
+          const bing = `https://www.bing.com/search?q=${encodeURIComponent(term)}`;
+          chrome.tabs.update(tabId, { url: bing });
         }
       }
     }

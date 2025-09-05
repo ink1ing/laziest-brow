@@ -1,6 +1,6 @@
 ## laziest browser
 
-One‑liner: Type a tiny prefix in the address bar to jump to the right engine — "," → ChatGPT, "." → Bing, "/" → DuckDuckGo, ";" → Chinese Wikipedia.
+One‑liner: Type a tiny prefix to jump fast — "," → ChatGPT, "." → FuClaude Demo, "/" → Bing, ";" → GitHub, "'"/"‘" → Chinese Wikipedia.
 
 ## What It Does
 - Lightweight Chrome extension that turns simple prefixes into smart redirects.
@@ -9,13 +9,14 @@ One‑liner: Type a tiny prefix in the address bar to jump to the right engine �
 
 ## Prefix Rules
 - ",关键词" or "，关键词" → ChatGPT: `https://chatgpt.com/?q=%s&hints=search`
-- ".关键词" or "。关键词" → Bing: `https://www.bing.com/search?q=%s`
-- "/关键词" → DuckDuckGo: `https://duckduckgo.com/?q=%s`
-- ";关键词" or "；关键词" → Wikipedia (ZH): `https://zh.wikipedia.org/w/index.php?search=%s`
+- ".关键词" or "。关键词" → FuClaude Demo: `https://demo.fuclaude.com/new?q=%s`
+- "/关键词" → Bing: `https://www.bing.com/search?q=%s`
+- ";关键词" or "；关键词" → GitHub: `https://github.com/search?q=%s`
+- "'关键词" or "‘关键词" → Wikipedia (ZH): `https://zh.wikipedia.org/w/index.php?search=%s`
 - Special phrase: starts with "今天什么新闻" also routes to ChatGPT. It accepts separators `/`, `,`, `，` after the phrase (e.g., `今天什么新闻/科技`).
 
 Notes
-- When you type a leading slash like "/AI" in the address bar, Chrome may try `file:///AI`. The extension detects this and redirects to DuckDuckGo instead.
+- When you type a leading slash like "/AI" in the address bar, Chrome may try `file:///AI`. The extension detects this and redirects to Bing instead.
 
 ## How It Works
 - `background.js` listens for navigations and parses the query string or typed URL using a small router.
@@ -32,9 +33,10 @@ Notes
 ## Usage
 - In the address bar, type a prefix + your query, then press Enter:
   - `,how to write a regex` → ChatGPT
-  - `.vector search papers` → Bing
-  - `/privacy enhancing technologies` → DuckDuckGo
-  - `;机器学习` → 中文维基
+  - `.vector search papers` → FuClaude Demo
+  - `/privacy enhancing technologies` → Bing
+  - `;机器学习` → GitHub 搜索
+  - `'百科全书` 或 `‘百科全书` → 中文维基
   - `今天什么新闻/科技` → ChatGPT with "科技"
 
 Tip
@@ -53,7 +55,7 @@ Tip
 
 ## Troubleshooting
 - Seeing "ERR_FILE_NOT_FOUND" after typing `/term`?
-  - That’s Chrome trying `file:///term`. The extension adds a fallback to redirect to DuckDuckGo. If you still see it, ensure the extension is enabled and reloaded.
+  - That’s Chrome trying `file:///term`. The extension adds a fallback to redirect to Bing. If you still see it, ensure the extension is enabled and reloaded.
 - Nothing happens on non-Google search pages?
   - The primary interception targets Google results pages. Address bar inputs still work via the `tabs.onUpdated` fallback for slash; other prefixes are handled when the search provider is Google or when Chrome yields a standard navigation URL.
 - ChatGPT input not auto-filled?
@@ -66,5 +68,6 @@ Tip
 
 ## Changelog
 - 1.0.0
-  - Initial release with prefixes: `,`/`，` → ChatGPT, `.`/`。` → Bing, `/` → DuckDuckGo, `;`/`；` → Wikipedia (ZH), plus `今天什么新闻` handling and `/` file URL fallback.
-
+  - Initial release.
+- 1.1.0
+  - Updated mappings: `,`/`，` → ChatGPT, `.`/`。` → FuClaude Demo, `/` → Bing, `;`/`；` → GitHub, `'`/`‘` → Wikipedia (ZH). Slash file-URL fallback now redirects to Bing.
