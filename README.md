@@ -76,5 +76,6 @@ Tip
 - `content.js` — Autofill and optional auto-send on ChatGPT.
 
 ## Changelog
-- 1.1.0
-  - Updated mappings: `,`/`，` → ChatGPT, `.`/`。` → FuClaude Demo, `/` → Bing, `;`/`；` → GitHub, `'`/`‘` → Wikipedia (ZH). Slash file-URL fallback now redirects to Bing.
+- 1.0.0
+  - First public release with new prefix mappings: `,`/`，` → ChatGPT, `.`/`。` → FuClaude Demo, `/` → Bing, `;`/`；` → GitHub, `'`/`‘` → Wikipedia (ZH). Slash file-URL fallback redirects to Bing.
+  - Add release ZIP artifact and GitHub Actions workflow for one-click download.
