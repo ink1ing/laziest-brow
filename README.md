@@ -24,6 +24,15 @@ Notes
 - `content.js` runs on ChatGPT pages to auto-fill the prompt from `?q=` and auto-click the send button.
 
 ## Install (Developer Mode)
+Option A — One-click download (Releases):
+1. Go to GitHub Releases and download `laziest-browser-vX.Y.Z.zip`.
+2. Unzip to a folder.
+3. Open Chrome → `chrome://extensions`.
+4. Toggle on "Developer mode" (top-right).
+5. Click "Load unpacked" and select the unzipped folder.
+6. Pin the extension if you like; it has no popup UI.
+
+Option B — From source:
 1. Download or clone this repository.
 2. Open Chrome → `chrome://extensions`.
 3. Toggle on "Developer mode" (top-right).
@@ -67,7 +76,5 @@ Tip
 - `content.js` — Autofill and optional auto-send on ChatGPT.
 
 ## Changelog
-- 1.0.0
-  - Initial release.
 - 1.1.0
   - Updated mappings: `,`/`，` → ChatGPT, `.`/`。` → FuClaude Demo, `/` → Bing, `;`/`；` → GitHub, `'`/`‘` → Wikipedia (ZH). Slash file-URL fallback now redirects to Bing.
