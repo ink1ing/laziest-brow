@@ -12,12 +12,14 @@ zip_name="dist/laziest-browser-v${ver}.zip"
 echo "Packing -> ${zip_name}"
 rm -f "$zip_name"
 
-zip -r "$zip_name" \
-  manifest.json \
-  background.js \
-  content.js \
-  README.md \
-  LICENSE >/dev/null
+  zip -r "$zip_name" \
+    manifest.json \
+    background.js \
+    content.js \
+    options.html \
+    options.css \
+    options.js \
+    README.md \
+    LICENSE >/dev/null
 
 echo "Done: ${zip_name}"
-

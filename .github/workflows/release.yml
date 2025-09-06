@@ -23,6 +23,9 @@ jobs:
             manifest.json \
             background.js \
             content.js \
+            options.html \
+            options.css \
+            options.js \
             README.md \
             LICENSE
 
@@ -31,4 +34,3 @@ jobs:
         with:
           files: dist/*.zip
           generate_release_notes: true
-

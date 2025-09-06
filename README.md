@@ -1,17 +1,19 @@
 ## laziest browser
 
-One‑liner: Type a tiny prefix to jump fast — "," → ChatGPT, "." → FuClaude Demo, "/" → Bing, ";" → GitHub, "'"/"‘" → Chinese Wikipedia.
+One‑liner: Type a tiny prefix to jump fast — "," → ChatGPT, "." → FuClaude Demo, "/" → Bing, ";" → GitHub, "、"/"\\" → Bilibili, "'"/"‘" → Chinese Wikipedia.
 
 ## What It Does
 - Lightweight Chrome extension that turns simple prefixes into smart redirects.
-- Works from the address bar or Google search page; no UI, no options.
+- Works from the address bar or Google search page; includes an Options panel.
 - Auto-fills your query into ChatGPT and can auto-send it.
+ - Optional settings panel to manage prefix mappings.
 
 ## Prefix Rules
 - ",关键词" or "，关键词" → ChatGPT: `https://chatgpt.com/?q=%s&hints=search`
 - ".关键词" or "。关键词" → FuClaude Demo: `https://demo.fuclaude.com/new?q=%s`
 - "/关键词" → Bing: `https://www.bing.com/search?q=%s`
 - ";关键词" or "；关键词" → GitHub: `https://github.com/search?q=%s`
+- "、关键词" or "\\关键词" → Bilibili: `https://search.bilibili.com/all?keyword=%s`
 - "'关键词" or "‘关键词" → Wikipedia (ZH): `https://zh.wikipedia.org/w/index.php?search=%s`
 - Special phrase: starts with "今天什么新闻" also routes to ChatGPT. It accepts separators `/`, `,`, `，` after the phrase (e.g., `今天什么新闻/科技`).
 
@@ -45,6 +47,7 @@ Option B — From source:
   - `.vector search papers` → FuClaude Demo
   - `/privacy enhancing technologies` → Bing
   - `;机器学习` → GitHub 搜索
+  - `、番剧 推荐` 或 `\编程 教程` → Bilibili 搜索
   - `'百科全书` 或 `‘百科全书` → 中文维基
   - `今天什么新闻/科技` → ChatGPT with "科技"
 
@@ -79,3 +82,10 @@ Tip
 - 1.0.0
   - First public release with new prefix mappings: `,`/`，` → ChatGPT, `.`/`。` → FuClaude Demo, `/` → Bing, `;`/`；` → GitHub, `'`/`‘` → Wikipedia (ZH). Slash file-URL fallback redirects to Bing.
   - Add release ZIP artifact and GitHub Actions workflow for one-click download.
+## Settings Panel
+- Open the extension’s Options (Chrome: chrome://extensions → the extension → Details → Extension options).
+- The panel lets you:
+  - View and delete existing mappings
+  - Add a new mapping (Prefix → URL template; use %s as placeholder)
+  - Restore defaults
+- The UI language is English with GitHub dark theme styling and bold fonts.

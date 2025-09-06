@@ -4,55 +4,93 @@
 // - 以 `今天什么新闻` 开头：跳转 ChatGPT（同原有规则）
 // - 以 `。`（中文句号）或 `.` 开头：跳转 FuClaude Demo（去掉前缀）
 // - 以 `/` 开头：跳转 Bing（去掉前缀）
+// - 以 `、` 或 `\` 开头：跳转 Bilibili（去掉前缀）
+// ===== Dynamic mappings support =====
+const DEFAULT_MAPPINGS = [
+  { prefix: ',', label: 'ChatGPT', urlTemplate: 'https://chatgpt.com/?q=%s&hints=search' },
+  { prefix: '，', label: 'ChatGPT', urlTemplate: 'https://chatgpt.com/?q=%s&hints=search' },
+  { prefix: '.', label: 'FuClaude', urlTemplate: 'https://demo.fuclaude.com/new?q=%s' },
+  { prefix: '。', label: 'FuClaude', urlTemplate: 'https://demo.fuclaude.com/new?q=%s' },
+  { prefix: '/', label: 'Bing', urlTemplate: 'https://www.bing.com/search?q=%s' },
+  { prefix: ';', label: 'GitHub', urlTemplate: 'https://github.com/search?q=%s' },
+  { prefix: '；', label: 'GitHub', urlTemplate: 'https://github.com/search?q=%s' },
+  { prefix: "'", label: 'Wikipedia ZH', urlTemplate: 'https://zh.wikipedia.org/w/index.php?search=%s' },
+  { prefix: '‘', label: 'Wikipedia ZH', urlTemplate: 'https://zh.wikipedia.org/w/index.php?search=%s' },
+  { prefix: '、', label: 'Bilibili', urlTemplate: 'https://search.bilibili.com/all?keyword=%s' },
+  { prefix: '\\', label: 'Bilibili', urlTemplate: 'https://search.bilibili.com/all?keyword=%s' },
+];
+
+let mappingCache = DEFAULT_MAPPINGS.slice();
+
+// Load mappings from storage and keep in cache
+function loadMappings() {
+  try {
+    chrome.storage.sync.get({ mappings: null }, (res) => {
+      if (Array.isArray(res.mappings) && res.mappings.length > 0) {
+        mappingCache = res.mappings;
+      } else {
+        mappingCache = DEFAULT_MAPPINGS.slice();
+      }
+    });
+  } catch (_) {
+    mappingCache = DEFAULT_MAPPINGS.slice();
+  }
+}
+
+loadMappings();
+try {
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && changes.mappings) {
+      const { newValue } = changes.mappings;
+      if (Array.isArray(newValue) && newValue.length > 0) {
+        mappingCache = newValue;
+      } else {
+        mappingCache = DEFAULT_MAPPINGS.slice();
+      }
+    }
+  });
+} catch (_) {}
+
+function buildUrl(urlTemplate, term) {
+  const encoded = encodeURIComponent(term);
+  if (urlTemplate.includes('%s')) return urlTemplate.replace(/%s/g, encoded);
+  // fallback: append q param
+  const hasQuery = urlTemplate.includes('?');
+  const sep = hasQuery ? '&' : '?';
+  return `${urlTemplate}${sep}q=${encoded}`;
+}
+
+function matchPrefixRoute(query) {
+  for (const m of mappingCache) {
+    if (query.startsWith(m.prefix)) {
+      const rest = query.slice(m.prefix.length).trim();
+      if (!rest) return null;
+      return buildUrl(m.urlTemplate, rest);
+    }
+  }
+  return null;
+}
+
 function extractRedirect(raw) {
   if (!raw) return null;
   const query = raw.trim();
 
-  // ChatGPT：英文/中文逗号前缀（不变）
-  if (query.startsWith(',') || query.startsWith('，')) {
-    const rest = query.slice(1).trim();
-    return rest ? { to: 'chatgpt', term: rest } : null;
+  // Special phrase → ChatGPT
+  const phrase = '今天什么新闻';
+  if (query === phrase || query === `${phrase}/`) {
+    return buildUrl('https://chatgpt.com/?q=%s&hints=search', phrase);
   }
-
-  // ChatGPT：“今天什么新闻”前缀的多种形式
-  const prefix = '今天什么新闻';
-  if (query === prefix || query === `${prefix}/`) {
-    return { to: 'chatgpt', term: prefix };
-  }
-  if (query.startsWith(prefix)) {
-    const next = query.slice(prefix.length);
-    if (!next) return { to: 'chatgpt', term: prefix };
-    const separators = ['/', ',', '，'];
+  if (query.startsWith(phrase)) {
+    const next = query.slice(phrase.length);
+    const seps = ['/', ',', '，'];
     let rest = next.trimStart();
-    if (rest && separators.includes(rest[0])) {
-      rest = rest.slice(1).trim();
-    }
-    return { to: 'chatgpt', term: rest || prefix };
+    if (rest && seps.includes(rest[0])) rest = rest.slice(1).trim();
+    return buildUrl('https://chatgpt.com/?q=%s&hints=search', rest || phrase);
   }
 
-  // FuClaude Demo：句号前缀（全角或半角）
-  if (query.startsWith('。') || query.startsWith('.')) {
-    const rest = query.slice(1).trim();
-    return rest ? { to: 'fuclaude', term: rest } : null;
-  }
-
-  // Bing：斜杠前缀
-  if (query.startsWith('/')) {
-    const rest = query.slice(1).trim();
-    return rest ? { to: 'bing', term: rest } : null;
-  }
-
-  // GitHub 搜索：分号前缀（全角或半角）
-  if (query.startsWith('；') || query.startsWith(';')) {
-    const rest = query.slice(1).trim();
-    return rest ? { to: 'github', term: rest } : null;
-  }
-
-  // 维基百科（中文）：单引号前缀（左单引号‘ 或 ASCII '）
-  if (query.startsWith('‘') || query.startsWith("'")) {
-    const rest = query.slice(1).trim();
-    return rest ? { to: 'wiki', term: rest } : null;
-  }
+  // Dynamic prefixes
+  const url = matchPrefixRoute(query);
+  if (url) return url;
 
   return null;
 }
@@ -70,22 +108,8 @@ chrome.webNavigation.onBeforeNavigate.addListener((details) => {
 
     const info = extractRedirect(query);
     if (info) {
-      let targetUrl = '';
-      if (info.to === 'chatgpt') {
-        targetUrl = `https://chatgpt.com/?q=${encodeURIComponent(info.term)}&hints=search`;
-      } else if (info.to === 'bing') {
-        targetUrl = `https://www.bing.com/search?q=${encodeURIComponent(info.term)}`;
-      } else if (info.to === 'fuclaude') {
-        targetUrl = `https://demo.fuclaude.com/new?q=${encodeURIComponent(info.term)}`;
-      } else if (info.to === 'github') {
-        targetUrl = `https://github.com/search?q=${encodeURIComponent(info.term)}`;
-      } else if (info.to === 'wiki') {
-        targetUrl = `https://zh.wikipedia.org/w/index.php?search=${encodeURIComponent(info.term)}`;
-      }
-
-      if (targetUrl) {
-        chrome.tabs.update(details.tabId, { url: targetUrl });
-      }
+      const targetUrl = info; // now info is already a URL string
+      chrome.tabs.update(details.tabId, { url: targetUrl });
     }
   }
 });
@@ -104,22 +128,8 @@ chrome.webNavigation.onCommitted.addListener((details) => {
 
       const info = extractRedirect(query);
       if (info) {
-        let targetUrl = '';
-        if (info.to === 'chatgpt') {
-          targetUrl = `https://chatgpt.com/?q=${encodeURIComponent(info.term)}&hints=search`;
-        } else if (info.to === 'bing') {
-          targetUrl = `https://www.bing.com/search?q=${encodeURIComponent(info.term)}`;
-        } else if (info.to === 'fuclaude') {
-          targetUrl = `https://demo.fuclaude.com/new?q=${encodeURIComponent(info.term)}`;
-        } else if (info.to === 'github') {
-          targetUrl = `https://github.com/search?q=${encodeURIComponent(info.term)}`;
-        } else if (info.to === 'wiki') {
-          targetUrl = `https://zh.wikipedia.org/w/index.php?search=${encodeURIComponent(info.term)}`;
-        }
-
-        if (targetUrl) {
-          chrome.tabs.update(details.tabId, { url: targetUrl });
-        }
+        const targetUrl = info;
+        chrome.tabs.update(details.tabId, { url: targetUrl });
       }
     } catch (e) {
       console.error('URL parsing error:', e);
@@ -129,7 +139,7 @@ chrome.webNavigation.onCommitted.addListener((details) => {
 
   // 处理地址栏直接输入以“/关键词”导致的 file:/// 跳转
 // 某些情况下，Chrome 会将以“/”开头的输入当作本地文件路径，出现 ERR_FILE_NOT_FOUND。
-// 这里拦截 tab URL 变化，若是类似 file:///关键词 的无扩展名、单段路径，则重定向到 Bing。
+// 这里拦截 tab URL 变化，若是类似 file:///关键词 的无扩展名、单段路径，则重定向到配置中 '/' 对应的搜索（若缺失则 Bing）。
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (!changeInfo.url) return;
   try {
@@ -140,8 +150,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       if (rawPath.startsWith('/') && rawPath.length > 1 && !rawPath.slice(1).includes('/') && !rawPath.slice(1).includes('.')) {
         const term = rawPath.slice(1).trim();
         if (term) {
-          const bing = `https://www.bing.com/search?q=${encodeURIComponent(term)}`;
-          chrome.tabs.update(tabId, { url: bing });
+          // prefer user-configured '/' mapping
+          const slashMap = mappingCache.find(m => m.prefix === '/');
+          const target = slashMap ? buildUrl(slashMap.urlTemplate, term) : `https://www.bing.com/search?q=${encodeURIComponent(term)}`;
+          chrome.tabs.update(tabId, { url: target });
         }
       }
     }

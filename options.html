@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Prefix Router Settings</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header>
+        <h1>Prefix Router</h1>
+        <p>Configure mappings from a typed prefix to a target URL template.<br/>Use %s as placeholder for the query.</p>
+      </header>
+
+      <section class="actions">
+        <button id="restore" class="btn">Restore Defaults</button>
+      </section>
+
+      <section>
+        <h2>Current Mappings</h2>
+        <ul id="list" class="list"></ul>
+      </section>
+
+      <section>
+        <h2>Add New Mapping</h2>
+        <form id="add-form" class="add-form">
+          <label>
+            <span>Prefix</span>
+            <input id="prefix" name="prefix" maxlength="5" placeholder="," required />
+          </label>
+          <label class="wide">
+            <span>Target URL template</span>
+            <input id="url" name="url" placeholder="https://example.com/search?q=%s" required />
+          </label>
+          <button class="btn" type="submit">Add</button>
+        </form>
+      </section>
+    </main>
+
+    <template id="item-template">
+      <li class="item">
+        <div class="pill prefix" title="Prefix"></div>
+        <div class="url" title="URL template"></div>
+        <button class="btn danger" data-action="delete">Delete</button>
+      </li>
+    </template>
+
+    <script src="options.js" defer></script>
+  </body>
+  </html>
+
