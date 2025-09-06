@@ -79,6 +79,10 @@ Tip
 - `content.js` — Autofill and optional auto-send on ChatGPT.
 
 ## Changelog
+- 1.0.1
+  - Add bilingual Options panel (English/中文) with language toggle; GitHub dark theme + all bold fonts; top-centered repo link and thanks to @ink @codex.
+  - Background reads mappings from storage and updates on change; slash file:// fallback respects user’s '/' mapping.
+  - Include options files in packaged ZIP and release workflow.
 - 1.0.0
   - First public release with new prefix mappings: `,`/`，` → ChatGPT, `.`/`。` → FuClaude Demo, `/` → Bing, `;`/`；` → GitHub, `'`/`‘` → Wikipedia (ZH). Slash file-URL fallback redirects to Bing.
   - Add release ZIP artifact and GitHub Actions workflow for one-click download.

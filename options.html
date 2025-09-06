@@ -7,10 +7,16 @@
     <link rel="stylesheet" href="options.css" />
   </head>
   <body>
+    <div class="topbar">
+      <a id="repo-link" class="repo" href="https://github.com/ink1ing/laziest-brow" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
+      <div id="thanks" class="thanks">Thanks: @ink @codex</div>
+      <button id="lang-toggle" class="btn small" type="button">中文</button>
+    </div>
+
     <main class="container">
       <header>
-        <h1>Prefix Router</h1>
-        <p>Configure mappings from a typed prefix to a target URL template.<br/>Use %s as placeholder for the query.</p>
+        <h1 id="title">Prefix Router</h1>
+        <p id="subtitle">Configure mappings from a typed prefix to a target URL template.<br/>Use %s as placeholder for the query.</p>
       </header>
 
       <section class="actions">
@@ -18,22 +24,22 @@
       </section>
 
       <section>
-        <h2>Current Mappings</h2>
+        <h2 id="current-title">Current Mappings</h2>
         <ul id="list" class="list"></ul>
       </section>
 
       <section>
-        <h2>Add New Mapping</h2>
+        <h2 id="add-title">Add New Mapping</h2>
         <form id="add-form" class="add-form">
           <label>
-            <span>Prefix</span>
+            <span id="prefix-label">Prefix</span>
             <input id="prefix" name="prefix" maxlength="5" placeholder="," required />
           </label>
           <label class="wide">
-            <span>Target URL template</span>
+            <span id="url-label">Target URL template</span>
             <input id="url" name="url" placeholder="https://example.com/search?q=%s" required />
           </label>
-          <button class="btn" type="submit">Add</button>
+          <button id="add-btn" class="btn" type="submit">Add</button>
         </form>
       </section>
     </main>
@@ -49,4 +55,3 @@
     <script src="options.js" defer></script>
   </body>
   </html>
-
