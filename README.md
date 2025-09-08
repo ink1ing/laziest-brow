@@ -79,6 +79,9 @@ Tip
 - `content.js` — Autofill and optional auto-send on ChatGPT.
 
 ## Changelog
+- 1.0.2
+  - Options: inline Edit/Save (✅) for each mapping row with validation and i18n.
+  - Share & Import: export/download JSON, copy JSON, deep-link share, file/paste import with merge/replace; one-click deep import.
 - 1.0.1
   - Add bilingual Options panel (English/中文) with language toggle; GitHub dark theme + all bold fonts; top-centered repo link and thanks to @ink @codex.
   - Background reads mappings from storage and updates on change; slash file:// fallback respects user’s '/' mapping.
