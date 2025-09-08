@@ -23,6 +23,9 @@
       prefix: 'Prefix',
       target: 'Target URL template',
       add: 'Add',
+      edit: 'Edit',
+      save: '✅',
+      saveTitle: 'Save',
       delete: 'Delete',
       repo: 'GitHub Repo',
       thanks: 'Thanks: @ink @codex',
@@ -48,6 +51,9 @@
       prefix: '前缀',
       target: '目标 URL 模板',
       add: '添加',
+      edit: '编辑',
+      save: '✅',
+      saveTitle: '保存',
       delete: '删除',
       repo: 'GitHub 仓库',
       thanks: '鸣谢：@ink @codex',
@@ -128,7 +134,11 @@
       // i18n for row specifics
       node.querySelector('.pill.prefix').title = t('prefix');
       node.querySelector('.url').title = t('target');
-      node.querySelector('[data-action="delete"]').textContent = t('delete');
+      const delBtn = node.querySelector('[data-action="delete"]');
+      delBtn.textContent = t('delete');
+      const editBtn = node.querySelector('[data-action="edit"]');
+      editBtn.textContent = t('edit');
+      editBtn.title = t('edit');
       list.appendChild(node);
     });
   }
@@ -147,13 +157,82 @@
   }
 
   list.addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-action="delete"]');
-    if (!btn) return;
-    const li = btn.closest('.item');
+    const del = e.target.closest('button[data-action="delete"]');
+    const edit = e.target.closest('button[data-action="edit"], button[data-action="save"]');
+    if (!del && !edit) return;
+
+    const li = e.target.closest('.item');
     const idx = Number(li.dataset.index);
+
+    if (del) {
+      chrome.storage.sync.get({ mappings: null }, (res) => {
+        const mappings = Array.isArray(res.mappings) && res.mappings.length > 0 ? res.mappings : DEFAULT_MAPPINGS.slice();
+        mappings.splice(idx, 1);
+        save(mappings);
+        render(mappings);
+      });
+      return;
+    }
+
+    // Edit / Save toggle
     chrome.storage.sync.get({ mappings: null }, (res) => {
       const mappings = Array.isArray(res.mappings) && res.mappings.length > 0 ? res.mappings : DEFAULT_MAPPINGS.slice();
-      mappings.splice(idx, 1);
+      const m = mappings[idx];
+      const prefixCell = li.querySelector('.pill.prefix');
+      const urlCell = li.querySelector('.url');
+      const editBtn = li.querySelector('button[data-action="edit"], button[data-action="save"]');
+      const isEditing = editBtn.getAttribute('data-action') === 'save';
+
+      if (!isEditing) {
+        // Enter edit mode: replace text with inputs
+        prefixCell.innerHTML = '';
+        const pInput = document.createElement('input');
+        pInput.className = 'edit-input';
+        pInput.maxLength = 5;
+        pInput.value = m.prefix;
+        pInput.placeholder = t('placeholders.prefix');
+        prefixCell.replaceWith((() => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'pill prefix';
+          wrapper.title = t('prefix');
+          wrapper.appendChild(pInput);
+          return wrapper;
+        })());
+
+        urlCell.innerHTML = '';
+        const uInput = document.createElement('input');
+        uInput.className = 'edit-input';
+        uInput.value = m.urlTemplate;
+        uInput.placeholder = t('placeholders.url');
+        uInput.title = t('target');
+        urlCell.appendChild(uInput);
+
+        editBtn.textContent = t('save');
+        editBtn.title = t('saveTitle');
+        editBtn.setAttribute('data-action', 'save');
+        pInput.focus();
+        return;
+      }
+
+      // Save mode: validate and persist
+      const newPrefix = li.querySelector('.pill.prefix input')?.value.trim() || '';
+      let newUrl = li.querySelector('.url input')?.value.trim() || '';
+      if (!newPrefix) return alert(t('alerts.prefixRequired'));
+      if (!newUrl) return alert(t('alerts.urlRequired'));
+      if (!newUrl.includes('%s')) {
+        const ok = confirm(t('alerts.urlNoPlaceholder'));
+        if (ok) {
+          const sep = newUrl.includes('?') ? '&' : '?';
+          newUrl = newUrl + sep + 'q=%s';
+        } else {
+          return;
+        }
+      }
+      if (mappings.some((x, i) => i !== idx && x.prefix === newPrefix)) {
+        return alert(t('alerts.exists'));
+      }
+
+      mappings[idx] = { ...m, prefix: newPrefix, urlTemplate: newUrl };
       save(mappings);
       render(mappings);
     });

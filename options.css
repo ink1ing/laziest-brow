@@ -107,6 +107,12 @@ section { margin: 20px 0; }
 
 .url { color: var(--text); word-break: break-all; }
 
+.actions-inline { display: flex; gap: 8px; justify-content: flex-end; }
+
+.edit-input {
+  width: 100%;
+}
+
 .add-form {
   display: grid;
   grid-template-columns: 160px 1fr auto;
