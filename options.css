@@ -60,6 +60,7 @@ header p {
 section { margin: 20px 0; }
 
 .actions { display: flex; gap: 12px; }
+.actions { flex-wrap: wrap; }
 
 .btn {
   background: var(--surface);

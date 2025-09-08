@@ -93,3 +93,12 @@ Tip
   - Add a new mapping (Prefix → URL template; use %s as placeholder)
   - Restore defaults
 - The UI language is English with GitHub dark theme styling and bold fonts.
+
+## Share & Import Mappings
+- Export as JSON: click "Export" to download a portable config file.
+- Copy JSON: click "Copy JSON" to share via chat.
+- Copy Link: click "Copy Link" to copy a deep link that opens Options and asks to import your mappings in one step.
+- Import (File/Paste): pick a JSON file or paste JSON to import.
+- Strategy: when importing, choose OK to Replace All, or Cancel to Merge (overwrite same prefixes).
+- Format example:
+  - { "version": 1, "mappings": [ { "prefix": ",", "urlTemplate": "https://chatgpt.com/?q=%s&hints=search" } ] }

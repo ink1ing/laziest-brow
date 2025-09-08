@@ -18,6 +18,11 @@
       title: 'Prefix Router',
       subtitle: 'Configure mappings from a typed prefix to a target URL template.\nUse %s as placeholder for the query.',
       restore: 'Restore Defaults',
+      export: 'Export',
+      copyJson: 'Copy JSON',
+      copyLink: 'Copy Link',
+      importFile: 'Import (File)',
+      importPaste: 'Import (Paste)',
       currentMappings: 'Current Mappings',
       addNew: 'Add New Mapping',
       prefix: 'Prefix',
@@ -35,7 +40,14 @@
         urlRequired: 'URL template required',
         urlNoPlaceholder: 'URL template does not contain %s. Append ?q=%s automatically?',
         exists: 'Prefix already exists',
-        restoreConfirm: 'Restore default mappings? This will overwrite current mappings.'
+        restoreConfirm: 'Restore default mappings? This will overwrite current mappings.',
+        invalidJson: 'Invalid JSON',
+        invalidConfig: 'Invalid config format',
+        importConfirmReplace: 'Import %d mappings. OK = Replace All, Cancel = Merge (overwrite same prefix).',
+        importConfirmFixMissing: '%d URL(s) missing %s placeholder. Append automatically? OK = Yes, Cancel = No',
+        importedN: 'Imported %d mapping(s).',
+        jsonCopied: 'JSON copied to clipboard.',
+        linkCopied: 'Link copied to clipboard.'
       },
       placeholders: {
         prefix: ',',
@@ -46,6 +58,11 @@
       title: '前缀路由',
       subtitle: '配置前缀到目标 URL 模板的映射。\n使用 %s 作为查询占位符。',
       restore: '恢复默认',
+      export: '导出',
+      copyJson: '复制 JSON',
+      copyLink: '复制链接',
+      importFile: '文件导入',
+      importPaste: '粘贴导入',
       currentMappings: '当前映射',
       addNew: '新增映射',
       prefix: '前缀',
@@ -63,7 +80,14 @@
         urlRequired: '请填写 URL 模板',
         urlNoPlaceholder: 'URL 模板缺少 %s。是否自动追加 ?q=%s？',
         exists: '该前缀已存在',
-        restoreConfirm: '确认恢复默认映射？当前设置将被覆盖。'
+        restoreConfirm: '确认恢复默认映射？当前设置将被覆盖。',
+        invalidJson: 'JSON 格式无效',
+        invalidConfig: '配置格式无效',
+        importConfirmReplace: '将导入 %d 条映射。确定=全部替换，取消=合并（同前缀覆盖）。',
+        importConfirmFixMissing: '有 %d 条 URL 模板缺少 %s 占位符，是否自动追加？确定=是，取消=否',
+        importedN: '已导入 %d 条映射。',
+        jsonCopied: 'JSON 已复制到剪贴板。',
+        linkCopied: '链接已复制到剪贴板。'
       },
       placeholders: {
         prefix: '，',
@@ -79,6 +103,12 @@
   const prefixInput = $('#prefix');
   const urlInput = $('#url');
   const restoreBtn = $('#restore');
+  const exportBtn = $('#export-json');
+  const copyJsonBtn = $('#copy-json');
+  const copyLinkBtn = $('#copy-link');
+  const importFileBtn = $('#import-file-btn');
+  const importFileInput = $('#import-file');
+  const importPasteBtn = $('#import-paste');
   const addBtn = $('#add-btn');
   const titleEl = $('#title');
   const subtitleEl = $('#subtitle');
@@ -101,6 +131,11 @@
     titleEl.textContent = t('title');
     subtitleEl.innerHTML = t('subtitle').replace(/\n/g, '<br/>');
     restoreBtn.textContent = t('restore');
+    exportBtn.textContent = t('export');
+    copyJsonBtn.textContent = t('copyJson');
+    copyLinkBtn.textContent = t('copyLink');
+    importFileBtn.textContent = t('importFile');
+    importPasteBtn.textContent = t('importPaste');
     currentTitleEl.textContent = t('currentMappings');
     addTitleEl.textContent = t('addNew');
     prefixLabelEl.textContent = t('prefix');
@@ -145,6 +180,83 @@
 
   function save(mappings) {
     chrome.storage.sync.set({ mappings });
+  }
+
+  // ===== Sharing / Import helpers =====
+  function base64urlEncode(str) {
+    const b64 = btoa(unescape(encodeURIComponent(str)));
+    return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/,'');
+  }
+  function base64urlDecode(token) {
+    token = token.replace(/-/g, '+').replace(/_/g, '/');
+    const pad = token.length % 4 === 2 ? '==': token.length % 4 === 3 ? '=' : '';
+    try {
+      return decodeURIComponent(escape(atob(token + pad)));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function toConfig(mappings) {
+    return {
+      version: 1,
+      mappings: mappings.map(m => ({ prefix: m.prefix, urlTemplate: m.urlTemplate, label: m.label || '' })),
+      meta: { createdAt: new Date().toISOString() }
+    };
+  }
+
+  function validateAndNormalize(items, interactive = true) {
+    // remove invalid, normalize urlTemplate; ensure http(s); ensure prefix length ≤ 5
+    const out = [];
+    let missingCount = 0;
+    for (const it of items) {
+      if (!it || typeof it.prefix !== 'string' || typeof it.urlTemplate !== 'string') continue;
+      const prefix = it.prefix.trim();
+      let url = it.urlTemplate.trim();
+      if (!prefix || prefix.length > 5 || !url) continue;
+      const lower = url.toLowerCase();
+      if (!(lower.startsWith('http://') || lower.startsWith('https://'))) continue;
+      if (!url.includes('%s')) missingCount++;
+      out.push({ prefix, urlTemplate: url, label: it.label || '' });
+    }
+    if (out.length === 0) return { items: [], missingHandled: true };
+    if (missingCount > 0 && interactive) {
+      const ok = confirm(t('alerts.importConfirmFixMissing').replace('%d', String(missingCount)));
+      if (ok) {
+        for (const it of out) {
+          if (!it.urlTemplate.includes('%s')) {
+            const sep = it.urlTemplate.includes('?') ? '&' : '?';
+            it.urlTemplate = it.urlTemplate + sep + 'q=%s';
+          }
+        }
+        return { items: out, missingHandled: true };
+      }
+    }
+    return { items: out, missingHandled: missingCount === 0 };
+  }
+
+  function importConfig(config, strategy = 'merge') {
+    if (!config || typeof config !== 'object' || !Array.isArray(config.mappings)) {
+      alert(t('alerts.invalidConfig'));
+      return;
+    }
+    const { items } = validateAndNormalize(config.mappings, true);
+    if (items.length === 0) {
+      alert(t('alerts.invalidConfig'));
+      return;
+    }
+    chrome.storage.sync.get({ mappings: null }, (res) => {
+      let base = strategy === 'replace'
+        ? []
+        : (Array.isArray(res.mappings) && res.mappings.length > 0 ? res.mappings : DEFAULT_MAPPINGS.slice());
+      // index by prefix
+      const map = new Map(base.map(m => [m.prefix, m]));
+      for (const it of items) map.set(it.prefix, { ...map.get(it.prefix), ...it });
+      const merged = Array.from(map.values()).sort((a,b) => a.prefix.localeCompare(b.prefix));
+      save(merged);
+      render(merged);
+      alert(t('alerts.importedN').replace('%d', String(items.length)));
+    });
   }
 
   function load() {
@@ -272,6 +384,83 @@
     render(DEFAULT_MAPPINGS);
   });
 
+  // Export (download JSON)
+  exportBtn.addEventListener('click', () => {
+    chrome.storage.sync.get({ mappings: null }, (res) => {
+      const mappings = Array.isArray(res.mappings) && res.mappings.length > 0 ? res.mappings : DEFAULT_MAPPINGS;
+      const cfg = toConfig(mappings);
+      const blob = new Blob([JSON.stringify(cfg, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `laziest-mappings-v${cfg.version}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+  });
+
+  // Copy JSON
+  copyJsonBtn.addEventListener('click', async () => {
+    chrome.storage.sync.get({ mappings: null }, async (res) => {
+      const mappings = Array.isArray(res.mappings) && res.mappings.length > 0 ? res.mappings : DEFAULT_MAPPINGS;
+      const cfg = toConfig(mappings);
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(cfg));
+        alert(t('alerts.jsonCopied'));
+      } catch (e) {
+        console.error(e);
+      }
+    });
+  });
+
+  // Copy Link (deep import link)
+  copyLinkBtn.addEventListener('click', () => {
+    chrome.storage.sync.get({ mappings: null }, async (res) => {
+      const mappings = Array.isArray(res.mappings) && res.mappings.length > 0 ? res.mappings : DEFAULT_MAPPINGS;
+      const cfg = toConfig(mappings);
+      const token = base64urlEncode(JSON.stringify(cfg));
+      const full = chrome.runtime.getURL(`options.html#cfg=${token}`);
+      try {
+        await navigator.clipboard.writeText(full);
+        alert(t('alerts.linkCopied'));
+      } catch (e) { console.error(e); }
+    });
+  });
+
+  // Import (file)
+  importFileBtn.addEventListener('click', () => importFileInput.click());
+  importFileInput.addEventListener('change', async () => {
+    const f = importFileInput.files && importFileInput.files[0];
+    if (!f) return;
+    try {
+      const text = await f.text();
+      const cfg = JSON.parse(text);
+      const count = Array.isArray(cfg.mappings) ? cfg.mappings.length : 0;
+      const replace = confirm(t('alerts.importConfirmReplace').replace('%d', String(count)));
+      importConfig(cfg, replace ? 'replace' : 'merge');
+    } catch (e) {
+      alert(t('alerts.invalidJson'));
+    } finally {
+      importFileInput.value = '';
+    }
+  });
+
+  // Import (paste)
+  importPasteBtn.addEventListener('click', () => {
+    const text = prompt('Paste JSON here');
+    if (!text) return;
+    try {
+      const cfg = JSON.parse(text);
+      const count = Array.isArray(cfg.mappings) ? cfg.mappings.length : 0;
+      const replace = confirm(t('alerts.importConfirmReplace').replace('%d', String(count)));
+      importConfig(cfg, replace ? 'replace' : 'merge');
+    } catch (e) {
+      alert(t('alerts.invalidJson'));
+    }
+  });
+
   langToggle.addEventListener('click', () => {
     const next = LANG === 'en' ? 'zh' : 'en';
     chrome.storage.sync.set({ lang: next }, () => {
@@ -280,4 +469,23 @@
   });
 
   load();
+
+  // One-click deep import via hash token
+  (function tryDeepImport() {
+    const hash = location.hash || '';
+    const m = hash.match(/[#&]cfg=([^&]+)/);
+    if (!m) return;
+    const json = base64urlDecode(m[1]);
+    if (!json) return;
+    try {
+      const cfg = JSON.parse(json);
+      const count = Array.isArray(cfg.mappings) ? cfg.mappings.length : 0;
+      const replace = confirm(t('alerts.importConfirmReplace').replace('%d', String(count)));
+      importConfig(cfg, replace ? 'replace' : 'merge');
+      // 清理 hash，避免重复提示
+      history.replaceState({}, document.title, location.pathname);
+    } catch (e) {
+      console.error('Deep import error', e);
+    }
+  })();
 })();
