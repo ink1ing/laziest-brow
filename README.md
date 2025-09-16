@@ -1,24 +1,38 @@
 ## laziest browser
 
-One‑liner: Type a tiny prefix to jump fast — "," → ChatGPT, "." → FuClaude Demo, "/" → Bing, ";" → GitHub, "、"/"\\" → Bilibili, "'"/"‘" → Chinese Wikipedia.
+One‑liner: Type a tiny prefix to jump fast—start with a clean slate, then import the AI / Browser / Web3 preset packs or craft your own shortcuts.
 
 ## What It Does
 - Lightweight Chrome extension that turns simple prefixes into smart redirects.
 - Works from the address bar or Google search page; includes an Options panel.
 - Auto-fills your query into ChatGPT and can auto-send it.
- - Optional settings panel to manage prefix mappings.
+- Drag the prefix pill to reorder shortcuts; import curated preset bundles or export/share your own.
 
-## Prefix Rules
-- ",关键词" or "，关键词" → ChatGPT: `https://chatgpt.com/?q=%s&hints=search`
-- ".关键词" or "。关键词" → FuClaude Demo: `https://demo.fuclaude.com/new?q=%s`
-- "/关键词" → Bing: `https://www.bing.com/search?q=%s`
-- ";关键词" or "；关键词" → GitHub: `https://github.com/search?q=%s`
-- "、关键词" or "\\关键词" → Bilibili: `https://search.bilibili.com/all?keyword=%s`
-- "'关键词" or "‘关键词" → Wikipedia (ZH): `https://zh.wikipedia.org/w/index.php?search=%s`
+## Preset Shortcuts
+New installs begin with zero shortcuts. Head to Options → Quick Presets and pick a pack (or add entries manually):
+
+### AI
+- `，` or `,` → ChatGPT: `https://chatgpt.com/?q=%s&hints=search`
+- `。` or `.` → FuClaude Demo: `https://demo.fuclaude.com/new?q=%s`
+
+### Browser
+- `//` → Bing: `https://www.bing.com/search?q=%s`
+- `gh` → GitHub: `https://github.com/search?q=%s`
+- `wk` → Wikipedia (ZH): `https://zh.wikipedia.org/w/index.php?search=%s`
+- `bl` → Bilibili: `https://search.bilibili.com/all?keyword=%s`
+- `x` → X: `https://x.com/search?q=%s`
+- `zl` → Z-Library: `https://z-library.ec/s/?q=%s`
+- `ddg` → DuckDuckGo: `https://duckduckgo.com/?q=%s`
+
+### Web3 / Crypto
+- `bn` → Binance Spot: `https://www.binance.com/zh-CN/trade/%s_USDT`
+- `bf` → Binance Futures: `https://www.binance.com/zh-CN/futures/%s_USDT`
+- `bm` → Binance Web3 Token: `https://web3.binance.com/zh-CN/token/bsc/%s`
+- `cg` → Coinglass: `https://www.coinglass.com/zh/coin/%s`
+
+Extras
 - Special phrase: starts with "今天什么新闻" also routes to ChatGPT. It accepts separators `/`, `,`, `，` after the phrase (e.g., `今天什么新闻/科技`).
-
-Notes
-- When you type a leading slash like "/AI" in the address bar, Chrome may try `file:///AI`. The extension detects this and redirects to Bing instead.
+- When you type a leading slash like "/AI" in the address bar, Chrome may try `file:///AI`. The extension will redirect using your `/` preset if defined, otherwise it falls back to Bing.
 
 ## How It Works
 - `background.js` listens for navigations and parses the query string or typed URL using a small router.
@@ -42,13 +56,12 @@ Option B — From source:
 5. Pin the extension if you like; it has no popup UI.
 
 ## Usage
-- In the address bar, type a prefix + your query, then press Enter:
-  - `,how to write a regex` → ChatGPT
-  - `.vector search papers` → FuClaude Demo
-  - `/privacy enhancing technologies` → Bing
-  - `;机器学习` → GitHub 搜索
-  - `、番剧 推荐` 或 `\编程 教程` → Bilibili 搜索
-  - `'百科全书` 或 `‘百科全书` → 中文维基
+- Open the Options page, import a preset (or add your own entries), then type a prefix + query in the address bar and hit Enter:
+  - `,how to write a regex` → ChatGPT (AI preset)
+  - `.vector search papers` → FuClaude Demo (AI preset)
+  - `//privacy enhancing technologies` → Bing (Browser preset)
+  - `gh机器学习` → GitHub 搜索 (Browser preset)
+  - `bnBTC` → Binance 现货 (Web3 / Crypto preset)
   - `今天什么新闻/科技` → ChatGPT with "科技"
 
 Tip
@@ -79,6 +92,10 @@ Tip
 - `content.js` — Autofill and optional auto-send on ChatGPT.
 
 ## Changelog
+- 1.1.0
+  - Start new installs with an empty shortcut list and provide AI / Browser / Web3 quick presets.
+  - Support drag-and-drop reordering directly in Options; allow multi-character prefixes like `//`, `gh`, `bn`.
+  - Background router now reads storage-only mappings and still falls back to Bing if you type `/term` without a preset.
 - 1.0.2
   - Options: inline Edit/Save (✅) for each mapping row with validation and i18n.
   - Share & Import: export/download JSON, copy JSON, deep-link share, file/paste import with merge/replace; one-click deep import.

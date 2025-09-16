@@ -20,7 +20,13 @@
       </header>
 
       <section class="actions">
-        <button id="restore" class="btn">Restore Defaults</button>
+        <button id="restore" class="btn" type="button">Reset (Empty)</button>
+        <div id="preset-bar" class="preset-bar">
+          <span id="preset-label" class="preset-label">Quick Presets</span>
+          <button class="btn preset" data-preset="ai" type="button">Import AI</button>
+          <button class="btn preset" data-preset="browser" type="button">Import Browser</button>
+          <button class="btn preset" data-preset="web3" type="button">Import Web3</button>
+        </div>
         <button id="export-json" class="btn" type="button">Export</button>
         <button id="copy-json" class="btn" type="button">Copy JSON</button>
         <button id="copy-link" class="btn" type="button">Copy Link</button>
@@ -32,6 +38,7 @@
       <section>
         <h2 id="current-title">Current Mappings</h2>
         <ul id="list" class="list"></ul>
+        <p id="empty-hint" class="empty-hint" hidden>No shortcuts yet. Import a preset or add one.</p>
       </section>
 
       <section>
@@ -39,7 +46,7 @@
         <form id="add-form" class="add-form">
           <label>
             <span id="prefix-label">Prefix</span>
-            <input id="prefix" name="prefix" maxlength="5" placeholder="," required />
+            <input id="prefix" name="prefix" maxlength="16" placeholder="," required />
           </label>
           <label class="wide">
             <span id="url-label">Target URL template</span>
