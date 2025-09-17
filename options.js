@@ -54,7 +54,7 @@
       presets: {
         ai: 'Import AI',
         browser: 'Import Browser',
-        web3: 'Import web3'
+        web3: 'Import Web3'
       },
       alerts: {
         prefixRequired: 'Prefix required',
@@ -66,8 +66,7 @@
         invalidConfig: 'Invalid config format',
         importConfirmReplace: 'Import %d mappings. OK = Replace All, Cancel = Merge (overwrite same prefix).',
         importConfirmFixMissing: '%d URL(s) missing %s placeholder. Append automatically? OK = Yes, Cancel = No',
-        importedN: 'Imported %d mapping(s).',
-        presetConfirm: 'Apply %s (%d shortcuts)? OK = Replace All, Cancel = Merge (overwrite same prefix).'
+        importedN: 'Imported %d mapping(s).'
       },
       placeholders: {
         prefix: ',',
@@ -108,8 +107,7 @@
         invalidConfig: '配置格式无效',
         importConfirmReplace: '将导入 %d 条映射。确定=全部替换，取消=合并（同前缀覆盖）。',
         importConfirmFixMissing: '有 %d 条 URL 模板缺少 %s 占位符，是否自动追加？确定=是，取消=否',
-        importedN: '已导入 %d 条映射。',
-        presetConfirm: '应用 %s（共 %d 条）？确定=全部替换，取消=合并（同前缀覆盖）。'
+        importedN: '已导入 %d 条映射。'
       },
       placeholders: {
         prefix: '，',
@@ -432,14 +430,7 @@
       const id = btn.dataset.preset;
       const preset = PRESET_SETS[id];
       if (!preset) return;
-      const label = t(`presets.${id}`);
-      const count = preset.mappings.length;
-      const replace = confirm(
-        t('alerts.presetConfirm')
-          .replace('%s', label)
-          .replace('%d', String(count))
-      );
-      importConfig({ version: 1, mappings: preset.mappings }, replace ? 'replace' : 'merge');
+      importConfig({ version: 1, mappings: preset.mappings }, 'merge');
     });
   });
 

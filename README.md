@@ -92,6 +92,8 @@ Tip
 - `content.js` — Autofill and optional auto-send on ChatGPT.
 
 ## Changelog
+- 1.1.2
+  - Fix preset imports so they always merge into your current list instead of replacing it.
 - 1.1.1
   - Action bar now keeps only Restore Defaults, Import File, Import AI/Browser/web3, and Export for a simpler workflow.
   - Removed Copy JSON / Copy Link buttons and the paste-import prompt; rely on file import and preset bundles instead.
@@ -120,7 +122,7 @@ Tip
 ## Share & Import Mappings
 - Export: click "Export" to download a portable config file of every shortcut.
 - Import File: upload a JSON snapshot to merge or replace your existing shortcuts.
-- Import AI / Import Browser / Import web3: load the preset packs; confirm to replace everything or merge (overwriting matching prefixes).
+- Import AI / Import Browser / Import Web3: append the preset pack to your current list (existing prefixes update in place, new ones land at the end).
 - Restore Defaults: clear all shortcuts and start fresh.
 - Strategy: when importing, choose OK to Replace All, or Cancel to Merge (overwrite same prefixes).
 - Format example:
