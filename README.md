@@ -92,6 +92,9 @@ Tip
 - `content.js` — Autofill and optional auto-send on ChatGPT.
 
 ## Changelog
+- 1.1.1
+  - Action bar now keeps only Restore Defaults, Import File, Import AI/Browser/web3, and Export for a simpler workflow.
+  - Removed Copy JSON / Copy Link buttons and the paste-import prompt; rely on file import and preset bundles instead.
 - 1.1.0
   - Start new installs with an empty shortcut list and provide AI / Browser / Web3 quick presets.
   - Support drag-and-drop reordering directly in Options; allow multi-character prefixes like `//`, `gh`, `bn`.
@@ -115,10 +118,10 @@ Tip
 - The UI language is English with GitHub dark theme styling and bold fonts.
 
 ## Share & Import Mappings
-- Export as JSON: click "Export" to download a portable config file.
-- Copy JSON: click "Copy JSON" to share via chat.
-- Copy Link: click "Copy Link" to copy a deep link that opens Options and asks to import your mappings in one step.
-- Import (File/Paste): pick a JSON file or paste JSON to import.
+- Export: click "Export" to download a portable config file of every shortcut.
+- Import File: upload a JSON snapshot to merge or replace your existing shortcuts.
+- Import AI / Import Browser / Import web3: load the preset packs; confirm to replace everything or merge (overwriting matching prefixes).
+- Restore Defaults: clear all shortcuts and start fresh.
 - Strategy: when importing, choose OK to Replace All, or Cancel to Merge (overwrite same prefixes).
 - Format example:
   - { "version": 1, "mappings": [ { "prefix": ",", "urlTemplate": "https://chatgpt.com/?q=%s&hints=search" } ] }

@@ -35,12 +35,9 @@
     en: {
       title: 'Prefix Router',
       subtitle: 'Configure mappings from a typed prefix to a target URL template.\nUse %s as placeholder for the query.',
-      restore: 'Reset (Empty)',
+      restore: 'Restore Defaults',
       export: 'Export',
-      copyJson: 'Copy JSON',
-      copyLink: 'Copy Link',
-      importFile: 'Import (File)',
-      importPaste: 'Import (Paste)',
+      importFile: 'Import File',
       currentMappings: 'Current Mappings',
       emptyHint: 'No shortcuts yet. Import a preset or add your own.',
       addNew: 'Add New Mapping',
@@ -55,10 +52,9 @@
       thanks: 'Thanks: @ink @codex',
       switchLang: '中文',
       presets: {
-        label: 'Quick Presets',
-        ai: 'Import AI Preset',
-        browser: 'Import Browser Preset',
-        web3: 'Import Web3 / Crypto Preset'
+        ai: 'Import AI',
+        browser: 'Import Browser',
+        web3: 'Import web3'
       },
       alerts: {
         prefixRequired: 'Prefix required',
@@ -71,8 +67,6 @@
         importConfirmReplace: 'Import %d mappings. OK = Replace All, Cancel = Merge (overwrite same prefix).',
         importConfirmFixMissing: '%d URL(s) missing %s placeholder. Append automatically? OK = Yes, Cancel = No',
         importedN: 'Imported %d mapping(s).',
-        jsonCopied: 'JSON copied to clipboard.',
-        linkCopied: 'Link copied to clipboard.',
         presetConfirm: 'Apply %s (%d shortcuts)? OK = Replace All, Cancel = Merge (overwrite same prefix).'
       },
       placeholders: {
@@ -83,12 +77,9 @@
     zh: {
       title: '前缀路由',
       subtitle: '配置前缀到目标 URL 模板的映射。\n使用 %s 作为查询占位符。',
-      restore: '清空（默认空白）',
+      restore: '恢复默认',
       export: '导出',
-      copyJson: '复制 JSON',
-      copyLink: '复制链接',
-      importFile: '文件导入',
-      importPaste: '粘贴导入',
+      importFile: '导入文件',
       currentMappings: '当前映射',
       emptyHint: '暂无快捷指令，先导入预设或手动添加。',
       addNew: '新增映射',
@@ -103,10 +94,9 @@
       thanks: '鸣谢：@ink @codex',
       switchLang: 'English',
       presets: {
-        label: '快捷预设',
-        ai: '导入 AI 预设',
-        browser: '导入 Browser 预设',
-        web3: '导入 Web3 / Crypto 预设'
+        ai: '导入 AI',
+        browser: '导入 Browser',
+        web3: '导入 Web3'
       },
       alerts: {
         prefixRequired: '请填写前缀',
@@ -119,8 +109,6 @@
         importConfirmReplace: '将导入 %d 条映射。确定=全部替换，取消=合并（同前缀覆盖）。',
         importConfirmFixMissing: '有 %d 条 URL 模板缺少 %s 占位符，是否自动追加？确定=是，取消=否',
         importedN: '已导入 %d 条映射。',
-        jsonCopied: 'JSON 已复制到剪贴板。',
-        linkCopied: '链接已复制到剪贴板。',
         presetConfirm: '应用 %s（共 %d 条）？确定=全部替换，取消=合并（同前缀覆盖）。'
       },
       placeholders: {
@@ -143,11 +131,8 @@
   const urlInput = $('#url');
   const restoreBtn = $('#restore');
   const exportBtn = $('#export-json');
-  const copyJsonBtn = $('#copy-json');
-  const copyLinkBtn = $('#copy-link');
   const importFileBtn = $('#import-file-btn');
   const importFileInput = $('#import-file');
-  const importPasteBtn = $('#import-paste');
   const addBtn = $('#add-btn');
   const titleEl = $('#title');
   const subtitleEl = $('#subtitle');
@@ -158,7 +143,6 @@
   const repoLink = $('#repo-link');
   const thanksEl = $('#thanks');
   const langToggle = $('#lang-toggle');
-  const presetLabelEl = $('#preset-label');
   const emptyHintEl = $('#empty-hint');
   const presetButtons = Array.from(document.querySelectorAll('[data-preset]'));
 
@@ -172,10 +156,7 @@
     subtitleEl.innerHTML = t('subtitle').replace(/\n/g, '<br/>');
     restoreBtn.textContent = t('restore');
     exportBtn.textContent = t('export');
-    copyJsonBtn.textContent = t('copyJson');
-    copyLinkBtn.textContent = t('copyLink');
     importFileBtn.textContent = t('importFile');
-    importPasteBtn.textContent = t('importPaste');
     currentTitleEl.textContent = t('currentMappings');
     addTitleEl.textContent = t('addNew');
     prefixLabelEl.textContent = t('prefix');
@@ -184,7 +165,6 @@
     repoLink.textContent = t('repo');
     thanksEl.textContent = t('thanks');
     langToggle.textContent = t('switchLang');
-    presetLabelEl.textContent = t('presets.label');
     emptyHintEl.textContent = t('emptyHint');
     prefixInput.placeholder = t('placeholders.prefix');
     urlInput.placeholder = t('placeholders.url');
@@ -476,28 +456,6 @@
     URL.revokeObjectURL(url);
   });
 
-  copyJsonBtn.addEventListener('click', async () => {
-    const cfg = toConfig();
-    try {
-      await navigator.clipboard.writeText(JSON.stringify(cfg));
-      alert(t('alerts.jsonCopied'));
-    } catch (e) {
-      console.error(e);
-    }
-  });
-
-  copyLinkBtn.addEventListener('click', async () => {
-    const cfg = toConfig();
-    const token = base64urlEncode(JSON.stringify(cfg));
-    const full = chrome.runtime.getURL(`options.html#cfg=${token}`);
-    try {
-      await navigator.clipboard.writeText(full);
-      alert(t('alerts.linkCopied'));
-    } catch (e) {
-      console.error(e);
-    }
-  });
-
   importFileBtn.addEventListener('click', () => importFileInput.click());
   importFileInput.addEventListener('change', async () => {
     const f = importFileInput.files && importFileInput.files[0];
@@ -515,19 +473,6 @@
     }
   });
 
-  importPasteBtn.addEventListener('click', () => {
-    const text = prompt('Paste JSON here');
-    if (!text) return;
-    try {
-      const cfg = JSON.parse(text);
-      const count = Array.isArray(cfg.mappings) ? cfg.mappings.length : 0;
-      const replace = confirm(t('alerts.importConfirmReplace').replace('%d', String(count)));
-      importConfig(cfg, replace ? 'replace' : 'merge');
-    } catch (e) {
-      alert(t('alerts.invalidJson'));
-    }
-  });
-
   langToggle.addEventListener('click', () => {
     const next = state.lang === 'en' ? 'zh' : 'en';
     chrome.storage.sync.set({ lang: next }, () => {
@@ -535,11 +480,6 @@
       render(state.mappings);
     });
   });
-
-  function base64urlEncode(str) {
-    const b64 = btoa(unescape(encodeURIComponent(str)));
-    return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  }
 
   function base64urlDecode(token) {
     token = token.replace(/-/g, '+').replace(/_/g, '/');

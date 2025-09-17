@@ -61,18 +61,6 @@ section { margin: 20px 0; }
 
 .actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 
-.preset-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.preset-label {
-  color: var(--muted);
-  font-weight: 800;
-}
-
 .btn.preset {
   padding: 8px 12px;
   font-size: 12px;
