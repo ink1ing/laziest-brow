@@ -21,6 +21,16 @@ function sanitizeMappings(list) {
 
 let mappingCache = [];
 
+try {
+  chrome.runtime.onInstalled.addListener((details) => {
+    if (details.reason === 'install') {
+      chrome.storage.sync.set({ hasSeenWelcome: false }, () => {
+        chrome.tabs.create({ url: chrome.runtime.getURL('welcome.html') });
+      });
+    }
+  });
+} catch (_) {}
+
 function loadMappings() {
   try {
     chrome.storage.sync.get({ mappings: null }, (res) => {

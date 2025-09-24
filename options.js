@@ -56,6 +56,11 @@
         browser: 'Import Browser',
         web3: 'Import Web3'
       },
+      guide: {
+        title: 'Quick Start',
+        copy: 'Need a refresher? Open the onboarding guide for shortcuts and tips.',
+        button: 'View Quick Start'
+      },
       alerts: {
         prefixRequired: 'Prefix required',
         urlRequired: 'URL template required',
@@ -96,6 +101,11 @@
         ai: '导入 AI',
         browser: '导入 Browser',
         web3: '导入 Web3'
+      },
+      guide: {
+        title: '快速上手',
+        copy: '需要复习？打开新手引导查看用法和技巧。',
+        button: '查看指南'
       },
       alerts: {
         prefixRequired: '请填写前缀',
@@ -143,6 +153,9 @@
   const langToggle = $('#lang-toggle');
   const emptyHintEl = $('#empty-hint');
   const presetButtons = Array.from(document.querySelectorAll('[data-preset]'));
+  const guideTitleEl = $('#guide-title');
+  const guideCopyEl = $('#guide-copy');
+  const openGuideBtn = $('#open-guide');
 
   function t(keyPath, lang = state.lang) {
     return keyPath.split('.').reduce((acc, k) => (acc && acc[k] != null ? acc[k] : null), I18N[lang]);
@@ -166,6 +179,9 @@
     emptyHintEl.textContent = t('emptyHint');
     prefixInput.placeholder = t('placeholders.prefix');
     urlInput.placeholder = t('placeholders.url');
+    guideTitleEl.textContent = t('guide.title');
+    guideCopyEl.textContent = t('guide.copy');
+    openGuideBtn.textContent = t('guide.button');
     presetButtons.forEach((btn) => {
       const key = btn.dataset.preset;
       btn.textContent = t(`presets.${key}`);
@@ -302,11 +318,20 @@
   }
 
   function load() {
-    chrome.storage.sync.get({ mappings: null, lang: 'en' }, (res) => {
+    chrome.storage.sync.get({ mappings: null, lang: 'en', hasSeenWelcome: true }, (res) => {
       const lang = res.lang || 'en';
       applyLang(lang);
       const stored = Array.isArray(res.mappings) ? res.mappings : [];
       setMappings(stored, { persist: false });
+      if (res.hasSeenWelcome === false) {
+        const url = chrome.runtime.getURL('welcome.html');
+        if (chrome.tabs && chrome.tabs.create) {
+          chrome.tabs.create({ url });
+        } else {
+          window.open(url, '_blank', 'noopener');
+        }
+        chrome.storage.sync.set({ hasSeenWelcome: true }, () => {});
+      }
     });
   }
 
@@ -423,6 +448,15 @@
   restoreBtn.addEventListener('click', () => {
     if (!confirm(t('alerts.restoreConfirm'))) return;
     setMappings([]);
+  });
+
+  openGuideBtn?.addEventListener('click', () => {
+    const url = chrome.runtime.getURL('welcome.html');
+    if (chrome.tabs && chrome.tabs.create) {
+      chrome.tabs.create({ url });
+    } else {
+      window.open(url, '_blank', 'noopener');
+    }
   });
 
   presetButtons.forEach((btn) => {

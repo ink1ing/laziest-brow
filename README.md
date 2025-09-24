@@ -56,6 +56,7 @@ Option B — From source:
 5. Pin the extension if you like; it has no popup UI.
 
 ## Usage
+- First install? The Quick Start guide opens automatically; you can reopen it any time from Options → Quick Start.
 - Open the Options page, import a preset (or add your own entries), then type a prefix + query in the address bar and hit Enter:
   - `,how to write a regex` → ChatGPT (AI preset)
   - `.vector search papers` → FuClaude Demo (AI preset)
@@ -92,6 +93,8 @@ Tip
 - `content.js` — Autofill and optional auto-send on ChatGPT.
 
 ## Changelog
+- 1.2.0
+  - New Quick Start onboarding page launches on first install and from the Options footer; includes core usage tips.
 - 1.1.2
   - Fix preset imports so they always merge into your current list instead of replacing it.
 - 1.1.1

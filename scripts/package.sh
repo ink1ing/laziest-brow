@@ -19,6 +19,9 @@ rm -f "$zip_name"
     options.html \
     options.css \
     options.js \
+    welcome.html \
+    welcome.css \
+    welcome.js \
     README.md \
     LICENSE >/dev/null
 

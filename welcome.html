@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Laziest Browser • Quick Start</title>
+    <link rel="stylesheet" href="welcome.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <h1>Welcome to laziest browser</h1>
+        <p class="tagline">Type a tiny prefix, hit Enter, and jump straight to the tool you need.</p>
+        <div class="cta-row">
+          <a class="btn primary" href="options.html" target="_blank" rel="noopener">Open Options</a>
+          <button class="btn outline" id="close-guide" type="button">Got it</button>
+        </div>
+      </header>
+
+      <section class="cards" aria-label="How it works">
+        <article class="card">
+          <h2>1. Add shortcuts</h2>
+          <p>Open the Options page and import a preset pack (AI, Browser, Web3) or add mappings manually. Each shortcut maps a prefix to a target URL with <code>%s</code> as the query placeholder.</p>
+        </article>
+        <article class="card">
+          <h2>2. Trigger from the address bar</h2>
+          <p>Focus Chrome's address bar, type your prefix followed by search terms, and press Enter. Example: <code>,vector databases</code> jumps to ChatGPT, <code>//privacy</code> searches Bing.</p>
+        </article>
+        <article class="card">
+          <h2>3. Drag to prioritize</h2>
+          <p>Reorder shortcuts in the Options list by dragging the colored pills. The order determines how presets import and how you scan your favorites.</p>
+        </article>
+      </section>
+
+      <section class="tips" aria-label="Tips">
+        <h2>Pro Tips</h2>
+        <ul>
+          <li>Shortcuts live in Chrome Sync storage, so they follow you across devices.</li>
+          <li>The extension also intercepts Google result pages; paste a prefix query into Google and it will redirect automatically.</li>
+          <li>Special phrase: start with <code>今天什么新闻</code> to jump to ChatGPT with your topic.</li>
+        </ul>
+      </section>
+
+      <footer class="footer">
+        <button class="btn subtle" id="open-options" type="button">Configure shortcuts now</button>
+        <span class="thanks">Built by @ink &amp; @codex • v<span id="version">--</span></span>
+      </footer>
+    </main>
+
+    <script src="welcome.js" defer></script>
+  </body>
+</html>
