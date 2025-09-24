@@ -58,8 +58,8 @@
       },
       guide: {
         title: 'Quick Start',
-        copy: 'Need a refresher? Open the onboarding guide for shortcuts and tips.',
-        button: 'View Quick Start'
+        copy: 'Need a refresher? Reopen the onboarding guide for prefix examples, drag tips, and pro shortcuts.',
+        button: 'Open Quick Start Guide'
       },
       alerts: {
         prefixRequired: 'Prefix required',
@@ -104,8 +104,8 @@
       },
       guide: {
         title: '快速上手',
-        copy: '需要复习？打开新手引导查看用法和技巧。',
-        button: '查看指南'
+        copy: '需要复习？重新打开新手引导，快速回顾前缀示例、拖拽技巧和进阶捷径。',
+        button: '打开新手引导'
       },
       alerts: {
         prefixRequired: '请填写前缀',

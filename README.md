@@ -1,9 +1,10 @@
 ## laziest browser
 
-One‑liner: Type a tiny prefix to jump fast—start with a clean slate, then import the AI / Browser / Web3 preset packs or craft your own shortcuts.
+One‑liner: Prefix router with drag reorder, Quick Start onboarding, and preset packs for AI / Browser / Web3 power users.
 
 ## What It Does
 - Lightweight Chrome extension that turns simple prefixes into smart redirects.
+- Launches a Quick Start tour on first install (and anytime from Options) so you can grasp the basics in seconds.
 - Works from the address bar or Google search page; includes an Options panel.
 - Auto-fills your query into ChatGPT and can auto-send it.
 - Drag the prefix pill to reorder shortcuts; import curated preset bundles or export/share your own.
@@ -57,6 +58,7 @@ Option B — From source:
 
 ## Usage
 - First install? The Quick Start guide opens automatically; you can reopen it any time from Options → Quick Start.
+- Prefer a refresher later? Hit “View Quick Start” at the bottom of Options.
 - Open the Options page, import a preset (or add your own entries), then type a prefix + query in the address bar and hit Enter:
   - `,how to write a regex` → ChatGPT (AI preset)
   - `.vector search papers` → FuClaude Demo (AI preset)
